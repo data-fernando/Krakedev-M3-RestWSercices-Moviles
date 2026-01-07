@@ -1,0 +1,245 @@
+--strock
+drop table if exists movimiento_strock;
+drop table if exists movimiento_stock;
+
+drop table if exists detalle_venta;
+drop table if exists cabecera_venta;
+
+drop table if exists detalle_pedido;
+drop table if exists cabecera_pedido;
+
+drop table if exists estado_pedido;
+
+
+
+--personas
+drop table if exists proveedores;
+drop table if exists tipo_documento;
+
+--productos
+drop table if exists productos;
+drop table if exists unidad_medidas;
+drop table if exists categorias;
+drop table if exists magnitud_medidas;
+
+
+create table magnitud_medidas(
+	codigo_medida char(1) not null PRIMARY KEY,
+	objeto_medida VARCHAR(20) not null
+);
+
+insert into magnitud_medidas(codigo_medida,objeto_medida) values	
+('V','volumen'),
+('m','masa'),
+('t','tiempo'),
+('L','longitud'),
+('c','cantidad');
+
+create table unidad_medidas(
+	simbolo_unidad varchar(2) not null primary KEY,
+	nombre_unidad varchar(20) not null,
+	objeto_fk VARCHAR(20) not null,
+	CONSTRAINT fk_nombre_medida
+	FOREIGN KEY (objeto_fk) REFERENCES magnitud_medidas(codigo_medida)
+);
+
+insert into unidad_medidas(simbolo_unidad,nombre_unidad,objeto_fk)values
+('u','unidad','c'),
+('ml','mililitro','V'),
+('m','metro','L'),
+('l','litro','V'), 
+('m3','metro cúbico','V'),
+('g','gramo','m'),
+('kg','kilogramo','m'), 
+('t','tonelada','m');
+
+
+create table categorias(
+	id_categoria serial NOT NULL PRIMARY KEY,
+	nombre_categ VARCHAR(20) not null,
+	cate_padre int,
+	CONSTRAINT recursividad 
+	FOREIGN KEY (cate_padre) REFERENCES categorias(id_categoria)
+	ON DELETE SET NULL
+);
+
+-- Categorías raíz (sin padre)
+insert into categorias(nombre_categ, cate_padre) values
+('Frutas', NULL),
+('Verduras', NULL),
+('Carnes', NULL),
+('Pescados', NULL),
+('Cereales', NULL),
+('Lácteos', NULL),
+('Bebidas', NULL),
+('Panadería', NULL),
+('Aseo', NULL),
+('Enlatados', NULL);
+
+insert into categorias(nombre_categ, cate_padre) values 
+('Frutas tropicales', 1),
+('Frutas cítricas', 1),
+('Frutas secas', 1),
+('Carne de res', 3), 
+('Carne de pollo', 3),
+('Carne de cerdo', 3);
+
+
+create table productos(
+	codigo_producto serial not NULL PRIMARY KEY,
+	nombre_pr VARCHAR(100) not null,
+	precio_venta_pr NUMERIC NOT NULL,
+	coste_pr NUMERIC NOT NULL,
+	tiene_iva BOOLEAN NOT NULL,
+	stock int not NULL,
+	udm_fk  varchar(2) not NULL,
+	categoria_fk int not null,
+	CONSTRAINT fk_udm FOREIGN key (udm_fk) 
+	REFERENCES unidad_medidas(simbolo_unidad),
+	CONSTRAINT fk_cat FOREIGN key (categoria_fk) 
+	REFERENCES categorias(id_categoria)
+);
+
+insert into productos(nombre_pr, precio_venta_pr, coste_pr, tiene_iva, stock, udm_fk, categoria_fk) values
+('Mango', 0.80, 0.50, true, 100, 'u', 11),
+('Piña', 1.50, 1.00, true, 50, 'u', 11),
+('Naranja', 0.30, 0.15, true, 200, 'u', 12),
+('Limón', 0.25, 0.10, true, 300, 'u', 12),
+('Nuez', 0.60, 0.40, true, 150, 'u', 13),
+('Almendra', 0.70, 0.45, true, 120, 'u', 13),
+('Bistec de res', 5.00, 3.50, true, 80, 'u', 14),
+('Costilla de res', 6.50, 4.00, true, 60, 'u', 14),
+('Pechuga de pollo', 4.00, 2.50, true, 100, 'u', 15),
+('Muslo de pollo', 3.00, 2.00, true, 120, 'u', 15),
+('Chuleta de cerdo', 4.50, 3.00, true, 90, 'u', 16),
+('Costilla de cerdo', 5.00, 3.20, true, 70, 'u', 16);
+
+
+
+--personas
+create table tipo_documento(
+	id_documento char(1) PRIMARY KEY not NULL,
+	descripcion_documento varchar(20) not NULL
+);
+
+create table proveedores(
+	id_documento varchar(13) PRIMARY KEY not NULL,
+	---nuevo forfeing key desde la misma linea
+	tipo_documento_fk char(1) not null REFERENCES tipo_documento(id_documento),
+	nombre_prov varchar(20) not null,
+	telefono char(10) not null,
+	correo VARCHAR(30) not null,
+	direccion VARCHAR(50)
+	
+);
+
+insert into tipo_documento values 
+('C','Cédula'),
+('R','RUC'),
+('P','Pasaporte');
+
+
+insert into proveedores(id_documento, tipo_documento_fk, nombre_prov, telefono, correo, direccion) values
+('0102030405','C','Frutas del Valle','0998765432','contacto@frutasvalle.com','Av. Amazonas 123, Quito'),
+('1790012345001','R','Carnes Andinas','0223456789','ventas@carnesandinas.com','Calle Bolívar 456, Guayaquil'),
+('AB1234567','P','Importadora Global','0987654321','info@importglobal.com','Av. Naciones Unidas 789, Quito'),
+('1790098765001','R','Lácteos Sierra','0229876543','contacto@lacteossi.com','Panamericana Norte km 12, Cayambe'),
+('1102345678','C','Verduras Frescas','0991122334','ventas@verdurasfrescas.com','Mercado Central, Cuenca');
+
+--pendiente, recivido,etc
+create table estado_pedido(
+	id_estado char(1) PRIMARY KEY not NULL,
+	descripcion_estado VARCHAR(15) not null
+);
+
+create table cabecera_pedido(
+	id_cabecera_pe serial not null PRIMARY KEY,
+	fecha Date DEFAULT CURRENT_DATE,
+	proveedor_fk varchar(13) REFERENCES proveedores(id_documento),
+	estado_fk char(1) REFERENCES estado_pedido(id_estado)
+);
+
+insert into estado_pedido values 
+('P','Pendiente'),
+('R','Recibido');
+
+insert into cabecera_pedido(proveedor_fk, estado_fk) values
+('0102030405','P'),   
+('1790012345001','R'); 
+
+CREATE TABLE detalle_pedido(
+	id_detalle serial not NULL PRIMARY KEY,
+	cantidad_solicitada int not null,
+	cantidad_recibida int not null,
+	subtotal NUMERIC not null,
+	producto_fk int not null references productos(codigo_producto),
+	pedido_fk int not null REFERENCES cabecera_pedido(id_cabecera_pe)
+);
+
+insert into detalle_pedido(cantidad_solicitada, cantidad_recibida, subtotal, producto_fk, pedido_fk) values
+(100, 95, 47.5, 1, 1),   -- Mango, pedido 1
+(50, 50, 75.0, 2, 1),    -- Piña, pedido 1
+(200, 200, 60.0, 3, 2);  -- Naranja, pedido 2
+
+
+
+create table cabecera_venta(
+	id_venta_cabe serial not null PRIMARY KEY,
+	fecha date not null DEFAULT CURRENT_DATE,
+	total_sin_iva numeric not null,
+	iva numeric not null,
+	total NUMERIC not null
+);
+
+
+insert into cabecera_venta(total_sin_iva, iva, total) values
+(100.00, 12.00, 112.00),
+(200.00, 24.00, 224.00);
+
+
+create table detalle_venta(
+	id_detalle_venta serial not null PRIMARY Key,
+	cantidad int not null,
+	precio_venta numeric not null,
+	subtotal numeric not null,
+	subtotal_iva NUMERIC not null,
+	cabecera_fk int not null REFERENCES cabecera_venta(id_venta_cabe),
+	producto_fk int not null references productos(codigo_producto)
+);
+insert into detalle_venta(cantidad, precio_venta, subtotal, subtotal_iva, cabecera_fk, producto_fk) values
+(10, 5.00, 50.00, 56.00, 1, 1),   -- Mango, venta 1
+(5, 15.00, 75.00, 84.00, 1, 2),   -- Piña, venta 1
+(20, 3.00, 60.00, 67.20, 2, 3);   -- Naranja, venta 2
+
+
+
+create table movimiento_stock(
+	id_movimiento serial not null primary key,
+	fecha_exacta TIMESTAMP not null default CURRENT_TIMESTAMP,
+	referencia_venta_fk int REFERENCES cabecera_venta(id_venta_cabe),
+	referencia_pedido_fk int REFERENCES cabecera_pedido(id_cabecera_pe),
+	producto_fk int not null references productos(codigo_producto),
+	cantidad int not null
+);
+
+insert into movimiento_stock(referencia_pedido_fk, producto_fk, cantidad) values
+(1, 1, 95),   -- Pedido 1, producto Mango, ingreso de 95 unidades
+(1, 2, 50);   -- Pedido 1, producto Piña, ingreso de 50 unidades
+
+insert into movimiento_stock(referencia_venta_fk, producto_fk, cantidad) values
+(1, 1, -10),  -- Venta 1, producto Mango, salida de 10 unidades
+(1, 2, -5);   -- Venta 1, producto Piña, salida de 5 unidades
+
+
+
+
+
+
+
+
+
+
+
+
+
+
