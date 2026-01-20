@@ -12,6 +12,8 @@ export default function HomeScreen() {
   const [valorCaja,setValorCaja]=useState("ingrese un valor")
   const [valorCaja2,setValorCaja2]=useState("ingrese otro valor")
   const [valorCaja3,setValorCaja3]=useState("")
+  // const [valorCaja3,setValorCaja3]=useState(0)
+    const [valorMoneda,setValorMoneda]=useState("")
 
   const suma=(a:number,b:number)=>a+b;
   const resta=(a:number,b:number)=>a-b;
@@ -24,11 +26,21 @@ export default function HomeScreen() {
 
   }
 
+  const convertir=(fn:Function)=>{
+    let valor=fn(Number(valorCaja));
+    return valor
+
+  }
+
+  const aMxpesos=(a:number)=>a*17;
+  const aCopesos=(a:number)=>a*4000;
+  const aEuros=(a:number)=>a*0.92;
+
   return (
     <ParallaxScrollView 
     headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }} headerImage={<></>}>  
     <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Reto 22</ThemedText>
+        <ThemedText type="title">Reto 23</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
@@ -41,14 +53,14 @@ export default function HomeScreen() {
             console.log("valor:>>"+valorCaja)
           }}
         />
-        <TextInput 
+        {/* <TextInput 
           value={valorCaja2} 
           style={styles.cajaTexto} 
           onChangeText={(txt)=>{
             setValorCaja2(txt)
             console.log("valor:>>"+valorCaja2)
           }}
-        />
+        /> */}
 
         {/* <Button 
           title='Saludar' 
@@ -58,7 +70,7 @@ export default function HomeScreen() {
           }} 
         /> */}
 
-        <Button 
+        {/* <Button 
           title='sumar' 
           onPress={()=>{
             let operacion=operar(suma)
@@ -88,13 +100,53 @@ export default function HomeScreen() {
             let operacion=operar(division)
             setValorCaja3(operacion)
           }} 
-        />
+        /> */}
+
+        <Button 
+          title='convertir a P Colombianos' 
+          onPress={()=>{
+            let operacion=convertir(aCopesos)
+            setValorMoneda("Pesos Colombianos")
+            setValorCaja3(operacion)
+          }} 
+          
+        /> 
+
+        
+        <Button 
+          title='convertir a P Mexicanos' 
+          onPress={()=>{
+            let operacion=convertir(aMxpesos)
+            setValorMoneda("Pesos Mexicanos")
+
+            setValorCaja3(operacion)
+          }} 
+          
+        /> 
+
+        
+        <Button 
+          title='convertir a Euros' 
+          onPress={()=>{
+            let operacion=convertir(aEuros)
+            setValorMoneda("Pesos Euros")
+
+            setValorCaja3(operacion)
+          }} 
+          
+        /> 
+
+        
 
         
       </ThemedView>
       <ThemedView style={styles.stepContainer}></ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Resultado {valorCaja3}</ThemedText>
+
+
+        {/* <ThemedText type="subtitle">Resultado {valorCaja3}</ThemedText> */}
+
+        <ThemedText type="subtitle">conversion {valorCaja3+" "+ valorMoneda}</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );
