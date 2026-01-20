@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calculadora</title>
+    <script src="funciones.js"></script>
+    <script src="utilitarios.js"></script>
+
+
+
+</head>
+<body>
+
+        <input type="number" id="valor1">
+    <input type="number" id="valor2">
+
+    <input type="button" value="Sumar" onclick="operar(sumar)">
+    <input type="button" value="Resta" onclick="operar(restar)">
+    <input type="button" value="Multiplicar" onclick="operar(multiplicar)">
+    <!-- pasar una funcion en su definicion -->
+<input type="button" value="Dividir" onclick="(() => {
+    let valor1 = recuperarNumber('valor1');
+    let valor2 = recuperarNumber('valor2');
+
+    console.log('valor 1: ' + valor1 + ' valor 2: ' + valor2);
+    let resultado = valor1 / valor2;
+    console.log('El resultado de la operación es ' + resultado);
+})();">
+
+
+</body>
+</html>
