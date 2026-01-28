@@ -45,14 +45,8 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Demostracion</ThemedText>
-        <TextInput 
-          value={valorCaja} 
-          style={styles.cajaTexto} 
-          onChangeText={(txt)=>{
-            setValorCaja(txt)
-            console.log("valor:>>"+valorCaja)
-          }}
-        />
+
+
         {/* <TextInput 
           value={valorCaja2} 
           style={styles.cajaTexto} 

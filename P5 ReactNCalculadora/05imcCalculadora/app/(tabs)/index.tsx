@@ -10,6 +10,8 @@ import { useState } from 'react';
 
 export default function HomeScreen() {
 
+  let esNuevo=true
+
   const [valorPeso,setValorPeso]=useState("")
   const [valorAltura,setValorAltura]=useState("")
   const [resultadoIMC,setValorIMC]=useState(0) /// setear con 0 valores numericos
@@ -17,6 +19,7 @@ export default function HomeScreen() {
 
   const calculoImca=(peso:number,altura:number)=>{
       
+    
       setValorIMC(peso/(altura*altura))
       return resultadoIMC
   }
